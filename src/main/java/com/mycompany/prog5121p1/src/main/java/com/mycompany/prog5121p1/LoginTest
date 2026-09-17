@@ -1,0 +1,130 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ */
+
+package com.mycompany.prog5121p1;
+
+/**
+ *
+ * @author OModi
+ */
+
+
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+public class LoginTest {
+
+    private Login login;
+
+    @BeforeEach
+    public void setUp() {
+        // This runs before every test to create a fresh Login object
+        login = new Login();
+    }
+
+    // ==========================================================
+    // 1. assertEquals Tests (Rows 1 to 6 in the rubric)
+    // ==========================================================
+
+    // Row 1: Login Success Message
+    @Test
+    public void test1_LoginSuccessMessage() {
+        login.registerUser("Kyle", "Smith", "kyl_1", "C!N&&c@k(9$1", "+27838968976");
+        assertEquals("Welcome Kyle Smith it is great to see you again.", login.returnLoginStatus(true));
+    }
+
+    // Row 2: Invalid Username Message
+    @Test
+    public void test2_InvalidUsernameMessage() {
+        String result = login.registerUser("Kyle", "Smith", "kyle!!!!!!!", "C!N&&c@k(9$1", "+27838968976");
+        assertEquals("Username is not correctly formatted; please ensure that your username contains an underscore and is no more than five characters in length.", result);
+    }
+
+    // Row 3: Password Success Message
+    @Test
+    public void test3_PasswordSuccessMessage() {
+        String result = login.registerUser("Kyle", "Smith", "kyl_1", "C!N&&c@k(9$1", "+27838968976");
+        // registerUser returns all three messages combined, so we split them to verify the password line
+        String[] messages = result.split("\n");
+        assertEquals("Password successfully captured.", messages[1]);
+    }
+
+    // Row 4: Invalid Password Message
+    @Test
+    public void test4_InvalidPasswordMessage() {
+        String result = login.registerUser("Kyle", "Smith", "kyl_1", "password", "+27838968976");
+        assertEquals("Password is not correctly formatted; please ensure that the password contains at least eight characters, a capital letter, a number, and a special character.", result);
+    }
+
+    // Row 5: Cell Number Success Message
+    @Test
+    public void test5_CellSuccessMessage() {
+        String result = login.registerUser("Kyle", "Smith", "kyl_1", "C!N&&c@k(9$1", "+27838968976");
+        String[] messages = result.split("\n");
+        assertEquals("Cell number successfully captured.", messages[2]);
+    }
+
+    // Row 6: Invalid Cell Number Message
+    @Test
+    public void test6_InvalidCellMessage() {
+        String result = login.registerUser("Kyle", "Smith", "kyl_1", "C!N&&c@k(9$1", "08966553");
+        assertEquals("Cell number is incorrectly formatted or does not contain an international code; please correct the number and try again.", result);
+    }
+
+    // ==========================================================
+    // 2. assertTrue / assertFalse Tests (Rows 7 to 14 in the rubric)
+    // ==========================================================
+
+    // Row 7: Username Correctly Formatted (True)
+    @Test
+    public void test7_UsernameValid_assertTrue() {
+        assertTrue(login.checkUserName("kyl_1"));
+    }
+
+    // Row 8: Username Incorrectly Formatted (False)
+    @Test
+    public void test8_UsernameInvalid_assertFalse() {
+        assertFalse(login.checkUserName("kyle!!!!!!!"));
+    }
+
+    // Row 9: Password Meets Complexity (True)
+    @Test
+    public void test9_PasswordValid_assertTrue() {
+        assertTrue(login.checkPasswordComplexity("C!N&&c@k(9$1"));
+    }
+
+    // Row 10: Password Does Not Meet Complexity (False)
+    @Test
+    public void test10_PasswordInvalid_assertFalse() {
+        assertFalse(login.checkPasswordComplexity("password"));
+    }
+
+    // Row 11: Cell Phone Number Correctly Formatted (True)
+    @Test
+    public void test11_CellValid_assertTrue() {
+        assertTrue(login.checkCellPhoneNumber("+27838968976"));
+    }
+
+    // Row 12: Cell Phone Number Incorrectly Formatted (False)
+    @Test
+    public void test12_CellInvalid_assertFalse() {
+        assertFalse(login.checkCellPhoneNumber("08966553"));
+    }
+
+    // Row 13: Login Successful (True)
+    @Test
+    public void test13_LoginSuccess_assertTrue() {
+        login.registerUser("Kyle", "Smith", "kyl_1", "C!N&&c@k(9$1", "+27838968976");
+        assertTrue(login.loginUser("kyl_1", "C!N&&c@k(9$1"));
+    }
+
+    // Row 14: Login Failed (False)
+    @Test
+    public void test14_LoginFail_assertFalse() {
+        login.registerUser("Kyle", "Smith", "kyl_1", "C!N&&c@k(9$1", "+27838968976");
+        assertFalse(login.loginUser("kyl_1", "wrongPassword"));
+    }
+}
