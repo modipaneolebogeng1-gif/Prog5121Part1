@@ -37,16 +37,16 @@ public class Prog5121P1 {
             
             System.out.println("\n" + registrationResult);
             
-            if (!registrationResult.equals(
-                    "Username successfully captured.\n"
-                            + "Password successfully captured.\n"
-                            + "Cell number successfully captured.")) {
+            if (!registrationResult.equals("""
+                                           Username successfully captured.
+                                           Password successfully captured.
+                                           Cell number successfully captured.""")) {
                 
                 System.out.println("\nRegistration failed.");
                 return;
             }
             
-            // --- Login (Your Part 1 code) ---
+            
             System.out.println("\n--- Login ---");
             
             System.out.print("Enter username: ");
@@ -59,22 +59,23 @@ public class Prog5121P1 {
             
             System.out.println("\n" + login.returnLoginStatus(loggedIn));
 
-            // --- PART 2 GATE: Only logged-in users get QuickChat ---
+           
             if (!loggedIn) {
                 System.out.println("\nYou must log in to use QuickChat. Exiting.");
                 return;
             }
 
-            // Start QuickChat
-            runQuickChat(scanner);
+         
+            MessageManager manager = new MessageManager();
+
+           
+            runQuickChat(scanner, manager);
         }
     }
 
-    // =========================================================
-    //                  PART 2: QUICKCHAT
-    // =========================================================
+  
 
-    private static void runQuickChat(Scanner scanner) {
+    private static void runQuickChat(Scanner scanner, MessageManager manager) {
         System.out.println("\n=================================");
         System.out.println("         Welcome to QuickChat.    ");
         System.out.println("=================================");
@@ -100,39 +101,37 @@ public class Prog5121P1 {
             System.out.println("1) Send Messages");
             System.out.println("2) Show recently sent messages");
             System.out.println("3) Quit");
+            System.out.println("4) Stored Messages (Part 3)"); // NEW OPTION
             System.out.print("Choose an option: ");
 
             int choice;
             try {
                 choice = Integer.parseInt(scanner.nextLine().trim());
             } catch (NumberFormatException e) {
-                System.out.println("Please enter 1, 2 or 3.");
+                System.out.println("Please enter a valid number.");
                 continue;
             }
 
             switch (choice) {
-                case 1:
+                case 1 -> {
                     if (messagesAlreadyEntered) {
                         System.out.println("You have already entered " + maxMessages + " messages this session.");
                     } else {
                         messagesAlreadyEntered = true;
-                        sendMessages(scanner, maxMessages);
+                        sendMessages(scanner, maxMessages, manager); // Pass manager
                     }
-                    break;
-                case 2:
-                    System.out.println("Coming Soon.");
-                    break;
-                case 3:
-                    running = false;
-                    break;
-                default:
-                    System.out.println("Invalid option. Choose 1, 2 or 3.");
+                }
+                case 2 -> System.out.println("Coming Soon.");
+                case 3 -> running = false;
+                case 4 -> // NEW: Call the Part 3 Sub-menu
+                    runStoredMessagesMenu(scanner, manager);
+                default -> System.out.println("Invalid option. Choose 1, 2, 3 or 4.");
             }
         }
         System.out.println("\nGoodbye.");
     }
 
-    private static void sendMessages(Scanner scanner, int count) {
+    private static void sendMessages(Scanner scanner, int count, MessageManager manager) {
         for (int i = 0; i < count; i++) {
             System.out.println("\n--- Message " + (i + 1) + " of " + count + " ---");
 
@@ -189,13 +188,70 @@ public class Prog5121P1 {
 
             System.out.println(msg.SentMessage(sendChoice));
 
-            if (sendChoice == 1 || sendChoice == 3) {
-                Message.addSentMessage(msg);
+            // NEW: Set flags and populate the Part 3 Parallel Arrays
+            switch (sendChoice) {
+                case 1 -> {
+                    msg.setFlag("Sent");
+                    Message.addSentMessage(msg);
+                    manager.addMessage(msg);
+                }
+                case 2 -> {
+                    msg.setFlag("Disregard");
+                    manager.addMessage(msg);
+                }
+                case 3 -> {
+                    msg.setFlag("Stored");
+                    Message.addSentMessage(msg);
+                    manager.addMessage(msg);
+                }
+                default -> {
+                }
             }
         }
 
         System.out.println("\n=================================");
         System.out.println("Total messages sent: " + Message.returnTotalMessages());
         System.out.println("=================================");
+    }
+
+    
+    private static void runStoredMessagesMenu(Scanner scanner, MessageManager manager) {
+        boolean inMenu = true;
+        
+        while (inMenu) {
+            System.out.println("\n=== PART 3: STORED MESSAGES ===");
+            System.out.println("a. Display sender and recipient of stored messages");
+            System.out.println("b. Display the longest stored message");
+            System.out.println("c. Search for a message ID");
+            System.out.println("d. Search for messages by recipient");
+            System.out.println("e. Delete a message using message hash");
+            System.out.println("f. Display full details report");
+            System.out.println("g. Read JSON file into arrays");
+            System.out.println("x. Back to Main Menu");
+            System.out.print("Choose an option: ");
+            
+            String choice = scanner.nextLine().trim().toLowerCase();
+            
+            switch (choice) {
+                case "a" -> manager.displaySenderAndRecipient();
+                case "b" -> System.out.println("Longest Message: " + manager.getLongestStoredMessage());
+                case "c" -> {
+                    System.out.print("Enter Message ID / Recipient to search: ");
+                    System.out.println(manager.searchByMessageID(scanner.nextLine().trim()));
+                }
+                case "d" -> {
+                    System.out.print("Enter Recipient number: ");
+                    System.out.println("Messages found: " + manager.searchByRecipient(scanner.nextLine().trim()));
+                }
+                case "e" -> {
+                    System.out.print("Enter Hash to delete (e.g., 00:0:DIDYOU...): ");
+                    System.out.println(manager.deleteMessageByHash(scanner.nextLine().trim()));
+                }
+                case "f" -> System.out.println(manager.generateReport());
+                case "g" -> manager.readFromJSON();
+                case "x" -> inMenu = false;
+                default -> System.out.println("Invalid choice. Please select a, b, c, d, e, f, g, or x.");
+            }
+        }
     }
 }
