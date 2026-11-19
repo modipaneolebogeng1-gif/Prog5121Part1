@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.prog5121p1;
 
 import com.google.gson.Gson;
@@ -14,10 +10,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.regex.Pattern;
 
-/**
- *
- * @author OModi
- */
 public class Message {
     
     private String messageID;
@@ -25,11 +17,28 @@ public class Message {
     private String recipient;
     private String messageText;
     private String messageHash;
+    
+    // --- THIS IS THE MISSING VARIABLE ---
+    private String flag; 
 
     private static final List<Message> sentMessages = new ArrayList<>();
     private static final String JSON_FILE = "messages.json";
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private static final String RECIPIENT_REGEX = "^(\\+27|0)[0-9]{9,10}$";
+
+    // Empty constructor for Gson
+    public Message() {
+    }
+
+    // Parameterized constructor for your Unit Tests
+    public Message(String messageID, int numMessagesSent, String recipient, String messageText, String messageHash, String flag) {
+        this.messageID = messageID;
+        this.numMessagesSent = numMessagesSent;
+        this.recipient = recipient;
+        this.messageText = messageText;
+        this.messageHash = messageHash;
+        this.flag = flag;
+    }
 
     public void generateMessageID() {
         generateMessageID(this.numMessagesSent);
@@ -109,7 +118,8 @@ public class Message {
         }
     }
 
-    private List<Message> loadExistingMessages() {
+    // --- THIS MUST BE PUBLIC (not private) ---
+    public static List<Message> loadExistingMessages() {
         try (FileReader reader = new FileReader(JSON_FILE)) {
             Message[] arr = gson.fromJson(reader, Message[].class);
             return arr == null ? new ArrayList<>() : new ArrayList<>(List.of(arr));
@@ -147,4 +157,8 @@ public class Message {
     public void setMessageText(String t) { this.messageText = t; }
     public String getMessageHash() { return messageHash; }
     public void setMessageHash(String h) { this.messageHash = h; }
+    
+    // --- THESE ARE THE MISSING GETTERS/SETTERS ---
+    public String getFlag() { return flag; }
+    public void setFlag(String flag) { this.flag = flag; }
 }
